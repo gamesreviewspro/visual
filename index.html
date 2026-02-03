@@ -10,6 +10,7 @@
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 10px; color: #333; }
         .main-wrapper { display: flex; flex-direction: column; gap: 20px; max-width: 1400px; margin: auto; padding: 10px; }
         
+        /* Modification pour Config à gauche, Preview à droite */
         @media (min-width: 1100px) { 
             .main-wrapper { flex-direction: row; align-items: flex-start; } 
             .panel-config { order: 1; flex: 1.2; min-width: 550px; } 
@@ -43,17 +44,38 @@
         .screen-mockup::before { content: ""; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 100px; height: 18px; background: #222; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; z-index: 11; }
         .screen-label { font-size: 0.70em; font-weight: bold; color: #fff; background: #333; padding: 3px 10px; border-radius: 10px; margin-bottom: 15px; display: inline-block; position: relative; z-index: 12; }
         
+        /* Ajout du fond spécifique pour Étape 1 et 3 */
+        .bg-step-custom { 
+            background-image: url('https://drscbjrshjhupvrrzqec.supabase.co/storage/v1/object/public/logos/1770076221296-bg.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+
         .wheel-container, .wheel-box { 
-            position: relative; margin: 20px auto; 
+            position: relative; 
+            margin: 20px auto; 
             border: var(--border-width) solid var(--yellow-border); 
             border-radius: 50%; 
             box-shadow: 0 0 15px var(--yellow-border);
-            animation: lights 1.5s infinite alternate; display: flex; align-items: center; justify-content: center; box-sizing: border-box;
+            animation: lights 1.5s infinite alternate;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
         }
         .wheel-container { width: 220px; height: 220px; }
         .wheel-box { width: 300px; height: 300px; }
 
-        .bulb { position: absolute; width: var(--bulb-size); height: var(--bulb-size); background: white; border-radius: 50%; z-index: 15; box-shadow: 0 0 5px white; animation: bulb-flash 0.6s infinite alternate; }
+        .bulb {
+            position: absolute;
+            width: var(--bulb-size);
+            height: var(--bulb-size);
+            background: white;
+            border-radius: 50%;
+            z-index: 15;
+            box-shadow: 0 0 5px white;
+            animation: bulb-flash 0.6s infinite alternate;
+        }
 
         @keyframes bulb-flash {
             from { background: #fff; box-shadow: 0 0 2px #fff; }
@@ -150,7 +172,7 @@
         <div class="btn-add-container">
             <button class="btn-add" onclick="addLotRow('', 0, 12, '#000000', '#ffffff')"><span>+</span> rajouter un lot</button>
         </div>
-      
+        
         <button id="btn-gen" class="btn-black" style="width:100%" onclick="saveAndGenerate()">Générer le QR Code</button>
         
         <div id="qr-display">
@@ -171,8 +193,7 @@
     <div class="panel panel-preview">
         <h2>👁️ Aperçu du parcours de votre client</h2>
         <div class="preview-grid">
-           
-            <div class="screen-mockup" style="background-image: url('https://drscbjrshjhupvrrzqec.supabase.co/storage/v1/object/public/logos/1770076221296-bg.jpg'); background-size: cover; background-position: center;">
+            <div class="screen-mockup bg-step-custom">
                 <span class="screen-label">Étape 1 : Avis</span>
                 <div style="margin-top:40px;">
                     <img id="pre-logo-pop" src="" style="max-width: 100px; margin-bottom: 15px;" loading="lazy">
@@ -201,7 +222,7 @@
                 </div>
             </div>
 
-            <div class="screen-mockup" style="background-image: url('https://drscbjrshjhupvrrzqec.supabase.co/storage/v1/object/public/logos/1770076221296-bg.jpg'); background-size: cover; background-position: center;">
+            <div class="screen-mockup bg-step-custom">
                 <span class="screen-label">Étape 3 : Jeu</span>
                 <h4 id="pre-twheel" style="margin: 10px 0; font-size: 14px; position: relative; z-index: 2;"></h4>
                 <div class="wheel-container" id="preview-bulbs-container">
@@ -304,12 +325,14 @@
             wl_c: document.getElementById('wheel_bulb_color').value,
             wl_s: document.getElementById('wheel_bulb_size').value
         };
+
         try {
             const response = await fetch(`${SB_URL}/rest/v1/roulette_configs`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${SB_KEY}`, 'apikey': SB_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
                 body: JSON.stringify({ id: configId, data: configData })
             });
+            
             if (!response.ok) throw new Error();
             
             const url = window.location.origin + window.location.pathname + "?id=" + configId;
@@ -318,6 +341,7 @@
             const qrContainer = document.getElementById('qrcode');
             qrContainer.innerHTML = "";
             new QRCode(qrContainer, { text: url, width: 220, height: 220, colorDark: "#000000" });
+            
             btn.innerText = "QR Code prêt à être utilisé et imprimer";
             btn.disabled = false;
         } catch (e) {
@@ -403,6 +427,7 @@
             ctx.moveTo(centerX, centerY); ctx.arc(centerX, centerY, radius, i * arc, (i + 1) * arc); ctx.fill();
             ctx.save(); ctx.translate(centerX, centerY); ctx.rotate(i * arc + arc / 2);
             ctx.fillStyle = txs[idx]; ctx.font = `bold ${ss[idx]*0.7}px Arial`; ctx.textAlign = "left";
+            
             const text = ns[idx];
             if (text.length > 10 && text.includes(' ')) {
                 const mid = Math.floor(text.length / 2);
@@ -433,12 +458,10 @@
         const area = document.getElementById('qrcode-area');
         const canvas = await html2canvas(area, { scale: 3, useCORS: true, backgroundColor: "#ffffff" });
         if (format === 'png') {
-            const link = document.createElement('a');
-            link.download = 'roulette.png';
+            const link = document.createElement('a'); link.download = 'roulette.png';
             link.href = canvas.toDataURL('image/png'); link.click();
         } else {
-            const { jsPDF } = window.jspdf;
-            const pdf = new jsPDF('p', 'mm', 'a4');
+            const { jsPDF } = window.jspdf; const pdf = new jsPDF('p', 'mm', 'a4');
             pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 10, 10, 100, 100 * (canvas.height / canvas.width));
             pdf.save('roulette.pdf');
         }
@@ -449,10 +472,19 @@
         const bColor = config.wb_c || '#FFD700';
         const lSize = config.wl_s || 10;
         const lColor = config.wl_c || '#FFD700';
+
         document.body.innerHTML = `
         <style>
             body { background: #f4f4f4; margin: 0; padding: 10px; box-sizing: border-box; }
             .client-card { background: white; padding: 20px; border-radius: 25px; width: 100%; max-width: 400px; margin: 10px auto; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.1); box-sizing: border-box; }
+            
+            /* Fond personnalisé client pour étapes 1 et 3 */
+            .bg-client-custom {
+                background-image: url('https://drscbjrshjhupvrrzqec.supabase.co/storage/v1/object/public/logos/1770076221296-bg.jpg');
+                background-size: cover;
+                background-position: center;
+            }
+
             .btn-black-c { background: #000; color: #fff; border: none; padding: 15px 30px; border-radius: 50px; font-weight: bold; cursor: pointer; width: 100%; font-size: 16px; margin-top: 15px; box-sizing: border-box; }
             input[type="text"], input[type="email"], input[type="tel"] { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; }
             
@@ -472,13 +504,11 @@
             .client-pointer::after { content: ""; position: absolute; top: 2px; left: 2px; width: calc(100% - 4px); height: calc(100% - 4px); background: #000; clip-path: polygon(100% 0, 0 0, 50% 100%); }
         </style>
 
-        <div id="step-avis" class="client-card" style="background-image: url('https://drscbjrshjhupvrrzqec.supabase.co/storage/v1/object/public/logos/1770076221296-bg.jpg'); background-size: cover; background-position: center; min-height: 500px; display: flex; flex-direction: column; justify-content: center;">
-            <img src="${config.l}" style="max-width:120px; margin: 0 auto 20px;">
-            <div style="background:white; padding:20px; border-radius:20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
-                <h2>${config.t1}</h2>
-                <p style="color:#666;">${config.t2}</p>
-                <a href="${config.u}" target="_blank" class="btn-black-c" style="display:block; text-decoration:none;" onclick="showStep('step-form')">${config.t3}</a>
-            </div>
+        <div id="step-avis" class="client-card bg-client-custom">
+            <img src="${config.l}" style="max-width:120px; margin-bottom:20px;">
+            <h2>${config.t1}</h2>
+            <p style="color:#666;">${config.t2}</p>
+            <a href="${config.u}" target="_blank" class="btn-black-c" style="display:block; text-decoration:none;" onclick="showStep('step-form')">${config.t3}</a>
         </div>
 
         <div id="step-form" class="client-card" style="display:none;">
@@ -495,20 +525,18 @@
             <button class="btn-black-c" onclick="validateForm()">VALIDER ET JOUER</button>
         </div>
 
-        <div id="step-wheel" class="client-card" style="display:none; background-image: url('https://drscbjrshjhupvrrzqec.supabase.co/storage/v1/object/public/logos/1770076221296-bg.jpg'); background-size: cover; background-position: center; min-height: 500px; display: flex; flex-direction: column; justify-content: center;">
-            <div style="background: rgba(255,255,255,0.9); padding: 15px; border-radius: 20px;">
-                <h2 style="margin-bottom: 20px; font-size: 18px;">${config.tw}</h2> 
-                <div class="wheel-box-client" id="client-bulbs-container">
-                    <div class="client-pointer"></div>
-                    <img src="${config.l}" style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); width:50px; height:50px; border-radius:50%; background:white; z-index:5; border:2px solid #fff;">
-                    <canvas id="rc" width="280" height="280"></canvas>
-                </div>
-                <button id="spin-btn" class="btn-black-c" onclick="spinClient()">LANCER LA ROUE</button>
-                <div id="res-box" style="display:none; border:2px solid #000; padding:15px; border-radius:15px; margin-top:20px; background: white;">
-                     <h3>Résultat : </h3>
-                     <p style="font-size:20px; font-weight:bold;"><span id="win-txt"></span></p>
-                     <p style="font-size:10px; text-align:justify;">${config.tc}</p>
-                </div>
+        <div id="step-wheel" class="client-card bg-client-custom" style="display:none;">
+            <h2 style="margin-bottom: 25px; position: relative; z-index: 2;">${config.tw}</h2> 
+            <div class="wheel-box-client" id="client-bulbs-container">
+                <div class="client-pointer"></div>
+                <img src="${config.l}" style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); width:50px; height:50px; border-radius:50%; background:white; z-index:5; border:2px solid #fff;">
+                <canvas id="rc" width="280" height="280"></canvas>
+            </div>
+            <button id="spin-btn" class="btn-black-c" onclick="spinClient()" style="position: relative; z-index: 2;">LANCER LA ROUE</button>
+            <div id="res-box" style="display:none; border:2px solid #000; padding:15px; border-radius:15px; margin-top:20px; background: white; position: relative; z-index: 2;">
+                 <h3>Résultat : </h3>
+                 <p style="font-size:20px; font-weight:bold;"><span id="win-txt"></span></p>
+                 <p style="font-size:10px; text-align:justify;">${config.tc}</p>
             </div>
         </div>`;
 
@@ -516,8 +544,7 @@
             document.getElementById('step-avis').style.display = 'none';
             document.getElementById('step-form').style.display = 'none';
             document.getElementById('step-wheel').style.display = 'none';
-            document.getElementById(id).style.display = (id === 'step-form') ? 'block' : 'flex';
-            
+            document.getElementById(id).style.display = 'block';
             if(id === 'step-wheel') {
                 drawClientWheel(config);
                 setTimeout(() => {
@@ -544,24 +571,29 @@
             }
             showStep('step-wheel');
         };
+
         window.spinClient = async () => {
             const btn = document.getElementById('spin-btn');
             btn.style.display = 'none';
             const r = Math.random() * 100; let s = 0, t = 0;
             for(let i=0; i<config.p.length; i++){ s += config.p[i]; if(r <= s){ t = i; break; } }
+            
             const deg = 3600 + (360 - (t * (360/config.n.length)) - (180/config.n.length)) + 270;
             document.getElementById('rc').style.transform = `rotate(${deg}deg)`;
+            
             const end = Date.now() + 5000;
             (function frame() {
                 confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0 } });
                 confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1 } });
                 if (Date.now() < end) requestAnimationFrame(frame);
             }());
+
             setTimeout(async () => {
                 const winLabel = config.n[t];
                 document.getElementById('win-txt').innerText = winLabel;
                 document.getElementById('res-box').style.display = 'block';
                 confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+
                 await fetch(`${SB_URL}/rest/v1/roulette_participants`, {
                     method: 'POST',
                     headers: { 'Authorization': `Bearer ${SB_KEY}`, 'apikey': SB_KEY, 'Content-Type': 'application/json' },
@@ -580,12 +612,13 @@
 
     function drawClientWheel(config) {
         const canvas = document.getElementById('rc'), ctx = canvas.getContext('2d'), arc = (2 * Math.PI) / config.n.length;
-        const cx = 140, cy = 140, r = 140;
+        const cx = 140, cy = 140, r = 140; 
         config.n.forEach((n, i) => {
             ctx.beginPath(); ctx.fillStyle = config.bg[i];
             ctx.moveTo(cx, cy); ctx.arc(cx, cy, r, i * arc, (i + 1) * arc); ctx.fill();
             ctx.save(); ctx.translate(cx, cy); ctx.rotate(i * arc + arc / 2);
             ctx.fillStyle = config.tx[i]; ctx.font = `bold ${config.s[i]}px Arial`; ctx.textAlign = "left";
+            
             if (n.length > 10 && n.includes(' ')) {
                 const mid = Math.floor(n.length / 2);
                 const spaceIdx = n.indexOf(' ', mid) !== -1 ? n.indexOf(' ', mid) : n.lastIndexOf(' ', mid);
@@ -594,6 +627,7 @@
                     ctx.fillText(n.substring(spaceIdx + 1), 60, (config.s[i]/2) + 2);
                 } else { ctx.fillText(n, 60, 5); }
             } else { ctx.fillText(n, 60, 5); }
+            
             ctx.restore();
         });
         ctx.beginPath(); ctx.fillStyle = "white"; ctx.arc(cx, cy, 32, 0, Math.PI * 2); ctx.fill();
