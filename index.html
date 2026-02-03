@@ -40,13 +40,10 @@
         .btn-add-container { text-align: right; margin: 10px 0 20px 0; }
         .btn-add { background: var(--black); color: white; border: none; padding: 8px 15px; border-radius: 50px; cursor: pointer; font-weight: bold; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; }
         .preview-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 20px; }
-        .screen-mockup { border: 12px solid #222; border-radius: 35px; padding: 15px; background: #FAF9F6; min-height: 520px; position: relative; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.2); text-align: center; max-width: 280px; margin: auto; display: flex; flex-direction: column; align-items: center; }
+        .screen-mockup { border: 12px solid #222; border-radius: 35px; padding: 15px; background: #FAF9F6; min-height: 520px; position: relative; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.2); text-align: center; max-width: 280px; margin: auto; }
         .screen-mockup::before { content: ""; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 100px; height: 18px; background: #222; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; z-index: 11; }
         .screen-label { font-size: 0.70em; font-weight: bold; color: #fff; background: #333; padding: 3px 10px; border-radius: 10px; margin-bottom: 15px; display: inline-block; position: relative; z-index: 12; }
         
-        /* Background addition for Steps 1 and 3 */
-        .bg-custom { background-image: url('https://drscbjrshjhupvrrzqec.supabase.co/storage/v1/object/public/logos/1770076221296-bg.jpg'); background-size: cover; background-position: center; }
-
         .wheel-container, .wheel-box { 
             position: relative; 
             margin: 20px auto; 
@@ -101,6 +98,10 @@
         
         .config-row { display: flex; gap: 15px; margin-bottom: 15px; }
         .config-item { flex: 1; }
+
+        /* Style pour l'élément grisé Premium */
+        .premium-disabled { opacity: 0.6; pointer-events: none; background-color: #f0f0f0; cursor: not-allowed; }
+        .premium-warning { color: #d9534f; font-size: 0.75em; font-weight: bold; margin-top: -8px; margin-bottom: 12px; display: block; }
     </style>
 
 <div class="main-wrapper">
@@ -117,7 +118,8 @@
         <input type="text" id="logo_url" class="full-width" oninput="update()" value="https://drscbjrshjhupvrrzqec.supabase.co/storage/v1/object/public/logos/1770049092342-yourlogo.png">
 
         <label>URL de destination de votre choix où le client devra faire une action (avis Google / page Facebook, Instagram, Tiktok) :</label>
-        <input type="text" id="google_url" class="full-width" value="https://g.page/r/CdoMazxHMNgaEBM/review" oninput="update()">
+        <input type="text" id="google_url" class="full-width premium-disabled" value="https://g.page/r/CdoMazxHMNgaEBM/review" readonly>
+        <span class="premium-warning">⚠️ fonctionnalité uniquement disponible dans le plan premium</span>
 
         <label>Code couleur de votre marque :</label>
         <div class="brand-colors">
@@ -189,11 +191,11 @@
     <div class="panel panel-preview">
         <h2>👁️ Aperçu du parcours de votre client</h2>
         <div class="preview-grid">
-            <div class="screen-mockup bg-custom">
+            <div class="screen-mockup">
                 <span class="screen-label">Étape 1 : Avis</span>
-                <div style="margin-top:40px; position: relative; z-index: 2;">
+                <div style="margin-top:40px;">
                     <img id="pre-logo-pop" src="" style="max-width: 100px; margin-bottom: 15px;" loading="lazy">
-                    <div style="background:white; padding:15px; border-radius:15px; border:1px solid #eee; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                    <div style="background:white; padding:15px; border-radius:15px; border:1px solid #eee;">
                         <h4 id="pre-t1" style="margin:0 0 10px 0; font-size: 14px;"></h4>
                         <p id="pre-t2" style="font-size:10px; color:#666;"></p>
                         <div class="btn-black" id="pre-t3" style="font-size:10px; padding:8px 15px;"></div>
@@ -218,17 +220,15 @@
                 </div>
             </div>
 
-            <div class="screen-mockup bg-custom">
+            <div class="screen-mockup">
                 <span class="screen-label">Étape 3 : Jeu</span>
-                <div style="background: rgba(255,255,255,0.85); padding: 10px; border-radius: 15px; margin: 10px; width: 90%; z-index: 2;">
-                    <h4 id="pre-twheel" style="margin: 5px 0; font-size: 14px;"></h4>
-                </div>
-                <div class="wheel-container" id="preview-bulbs-container" style="background: white; border-radius: 50%; z-index: 2;">
+                <h4 id="pre-twheel" style="margin: 10px 0; font-size: 14px;"></h4>
+                <div class="wheel-container" id="preview-bulbs-container">
                     <div class="pointer"></div>
                     <img id="pre-logo-wheel" src="" class="logo-center-preview" loading="lazy">
                     <canvas id="canvas-preview" width="200" height="200"></canvas>
                 </div>
-                <div class="btn-black" id="btn-spin-preview" onclick="spinPreview()" style="font-size:10px; padding:10px 20px; width:150px; z-index: 2; margin-top: 10px;">LANCEZ LA ROUE</div>
+                <div class="btn-black" id="btn-spin-preview" onclick="spinPreview()" style="font-size:10px; padding:10px 20px; width:150px;">LANCEZ LA ROUE</div>
             </div>
 
             <div class="screen-mockup">
@@ -474,19 +474,15 @@
         document.body.innerHTML = `
         <style>
             body { background: #f4f4f4; margin: 0; padding: 10px; box-sizing: border-box; }
-            .client-card { background: white; padding: 20px; border-radius: 25px; width: 100%; max-width: 400px; margin: 10px auto; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.1); box-sizing: border-box; position: relative; overflow: hidden; }
-            .client-card.bg-active { background-image: url('https://drscbjrshjhupvrrzqec.supabase.co/storage/v1/object/public/logos/1770076221296-bg.jpg'); background-size: cover; background-position: center; }
+            .client-card { background: white; padding: 20px; border-radius: 25px; width: 100%; max-width: 400px; margin: 10px auto; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.1); box-sizing: border-box; }
             .btn-black-c { background: #000; color: #fff; border: none; padding: 15px 30px; border-radius: 50px; font-weight: bold; cursor: pointer; width: 100%; font-size: 16px; margin-top: 15px; box-sizing: border-box; }
             input[type="text"], input[type="email"], input[type="tel"] { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; }
             
-            .content-box { background: rgba(255,255,255,0.95); padding: 20px; border-radius: 20px; position: relative; z-index: 2; }
-
             .wheel-box-client { 
                 position: relative; width: 280px; height: 280px; margin: 20px auto; 
                 border: ${bSize}px solid ${bColor}; border-radius: 50%; box-shadow: 0 0 15px ${bColor};
                 animation: lights-client 1.5s infinite alternate;
                 display: flex; align-items: center; justify-content: center; box-sizing: border-box;
-                background: white;
             }
             @keyframes lights-client { from { box-shadow: 0 0 10px ${bColor}; } to { box-shadow: 0 0 25px ${bColor}; border-color: #fff700; } }
 
@@ -498,13 +494,11 @@
             .client-pointer::after { content: ""; position: absolute; top: 2px; left: 2px; width: calc(100% - 4px); height: calc(100% - 4px); background: #000; clip-path: polygon(100% 0, 0 0, 50% 100%); }
         </style>
 
-        <div id="step-avis" class="client-card bg-active">
-            <div class="content-box">
-                <img src="${config.l}" style="max-width:120px; margin-bottom:20px;">
-                <h2>${config.t1}</h2>
-                <p style="color:#666;">${config.t2}</p>
-                <a href="${config.u}" target="_blank" class="btn-black-c" style="display:block; text-decoration:none;" onclick="showStep('step-form')">${config.t3}</a>
-            </div>
+        <div id="step-avis" class="client-card">
+            <img src="${config.l}" style="max-width:120px; margin-bottom:20px;">
+            <h2>${config.t1}</h2>
+            <p style="color:#666;">${config.t2}</p>
+            <a href="${config.u}" target="_blank" class="btn-black-c" style="display:block; text-decoration:none;" onclick="showStep('step-form')">${config.t3}</a>
         </div>
 
         <div id="step-form" class="client-card" style="display:none;">
@@ -521,17 +515,15 @@
             <button class="btn-black-c" onclick="validateForm()">VALIDER ET JOUER</button>
         </div>
 
-        <div id="step-wheel" class="client-card bg-active" style="display:none;">
-            <div class="content-box" style="margin-bottom: 15px; padding: 10px;">
-                <h2 style="margin: 0; font-size: 1.2em;">${config.tw}</h2> 
-            </div>
+        <div id="step-wheel" class="client-card" style="display:none;">
+            <h2 style="margin-bottom: 25px;">${config.tw}</h2> 
             <div class="wheel-box-client" id="client-bulbs-container">
                 <div class="client-pointer"></div>
                 <img src="${config.l}" style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); width:50px; height:50px; border-radius:50%; background:white; z-index:5; border:2px solid #fff;">
                 <canvas id="rc" width="280" height="280"></canvas>
             </div>
             <button id="spin-btn" class="btn-black-c" onclick="spinClient()">LANCER LA ROUE</button>
-            <div id="res-box" style="display:none; border:2px solid #000; padding:15px; border-radius:15px; margin-top:20px; background: white; position: relative; z-index: 3;">
+            <div id="res-box" style="display:none; border:2px solid #000; padding:15px; border-radius:15px; margin-top:20px;">
                  <h3>Résultat : </h3>
                  <p style="font-size:20px; font-weight:bold;"><span id="win-txt"></span></p>
                  <p style="font-size:10px; text-align:justify;">${config.tc}</p>
@@ -645,4 +637,45 @@
             update();
         }
     };
+  /* --- SCRIPT À RAJOUTER --- */
+
+// 1. Application du fond sur l'aperçu du configurateur
+const styleBg = document.createElement('style');
+styleBg.innerHTML = `
+    .bg-custom { 
+        background-image: url('https://drscbjrshjhupvrrzqec.supabase.co/storage/v1/object/public/logos/1770076221296-bg.jpg') !important; 
+        background-size: cover !important; 
+        background-position: center !important; 
+    }
+    .screen-mockup:nth-child(1), .screen-mockup:nth-child(3) { 
+        background-image: url('https://drscbjrshjhupvrrzqec.supabase.co/storage/v1/object/public/logos/1770076221296-bg.jpg'); 
+        background-size: cover; 
+        background-position: center; 
+    }
+    /* Amélioration lisibilité texte sur l'aperçu */
+    .screen-mockup:nth-child(3) h4 { color: white; text-shadow: 1px 1px 4px rgba(0,0,0,0.8); }
+`;
+document.head.appendChild(styleBg);
+
+// 2. Modification du rendu client (Mobile) pour inclure le fond
+const originalRenderClient = renderClient;
+renderClient = function(config, configId) {
+    originalRenderClient(config, configId);
+    
+    // Ajout du fond plein écran sur le body mobile
+    const clientBg = document.createElement('div');
+    clientBg.style.cssText = `
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background-image: url('https://drscbjrshjhupvrrzqec.supabase.co/storage/v1/object/public/logos/1770076221296-bg.jpg');
+        background-size: cover; background-position: center; z-index: -1;
+    `;
+    document.body.prepend(clientBg);
+    
+    // Rendre les cartes semi-transparentes pour voir le fond
+    const cards = document.querySelectorAll('.client-card');
+    cards.forEach(card => {
+        card.style.backgroundColor = "rgba(255, 255, 255, 0.9)";
+        card.style.backdropFilter = "blur(5px)";
+    });
+};
 </script>
